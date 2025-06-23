@@ -1,0 +1,354 @@
+/* About Section Styles */
+.about-section {
+  padding: 100px 0;
+  background-color: #000000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.about-container {
+  max-width: 1280px; /* Ample width for content */
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  width: 100%;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.about-header {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.about-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.title-underline {
+  height: 4px;
+  width: 60px;
+  background-color: #ffffff;
+  margin: 0 auto;
+}
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  align-items: center; /* Center content horizontally */
+  width: 100%;
+  max-width: 100%; /* Ensure content doesn't overflow container */
+}
+
+/* Center fix for grid */
+.about-grid-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Use fixed 3 columns with consistent sizes */
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px; /* Control maximum width */
+  margin: 0 auto;
+  justify-content: center;
+}
+
+/* Fixed width for grid columns to ensure even spacing */
+@media (min-width: 1200px) {
+  .about-grid {
+    grid-template-columns: repeat(3, 340px); /* Fixed width for perfect alignment */
+    justify-content: center; /* Center the fixed-width columns */
+  }
+  
+  .about-features {
+    grid-template-columns: repeat(3, 340px); /* Match the about-grid column width */
+    justify-content: center;
+  }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+  .about-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 992px) {
+  .about-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 350px;
+  }
+}
+
+.about-card {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px; /* Slightly rounded corners */
+  padding: 30px; /* Generous padding */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%; /* Ensure all cards have the same height */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box; /* Include padding in width calculation */
+  width: 100%; /* Ensure cards fill their grid space */
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.card-icon {
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 56px; /* Increased size */
+  height: 56px; /* Increased size */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px; /* Increased spacing */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Added subtle border */
+}
+
+.about-card h3 {
+  font-size: 1.35rem; /* Increased font size */
+  font-weight: 600;
+  margin-bottom: 16px; /* Increased margin for better spacing */
+  color: #ffffff;
+}
+
+.about-card p {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6; /* Increased line height for better readability */
+  font-size: 1rem; /* Restored normal font size */
+  margin-top: 0; /* Remove default top margin */
+}
+
+/* Features List */
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Match the grid structure of cards */
+  gap: 30px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1200px; /* Match the about-grid max-width */
+  justify-content: center; /* Center the grid */
+  align-items: stretch; /* Make all items the same height */
+}
+
+.feature {
+  position: relative;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border-left: 4px solid #ffffff;
+  border-left: none;
+  background-clip: padding-box;
+}
+
+.feature::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 10px;
+  border: 2px solid transparent;  background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), transparent) border-box;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.feature-number {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.1);
+  font-family: 'Montserrat', sans-serif;
+  opacity: 0.1;
+  transition: opacity 0.3s ease;
+}
+
+.feature:hover .feature-number {
+  opacity: 0.2;
+}
+
+.feature h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.feature p {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+}
+
+/* Quote Section */
+.about-quote {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.02);
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.about-quote::before {
+  content: '"';
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 6rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.05);
+  font-family: 'Georgia', serif;
+}
+
+.about-quote blockquote {
+  font-size: 1.5rem;
+  font-weight: 300;
+  font-style: italic;
+  color: #ffffff;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.about-quote cite {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Partners Section */
+.about-partners {
+  margin: 30px 0 60px;
+  text-align: center;
+}
+
+.partners-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #ffffff;
+}
+
+.partners-logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.partner-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.3s ease;
+}
+
+.partner-logo:hover {
+  transform: translateY(-5px);
+}
+
+.partner-logo span {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .about-section {
+    padding: 70px 0;
+  }
+  
+  .about-title {
+    font-size: 2rem;
+  }
+  
+  /* Grid styles are handled by the specific media queries above */
+  
+  .about-quote blockquote {
+    font-size: 1.2rem;
+  }
+  
+  .partners-logos {
+    gap: 20px;
+  }
+  
+  .partner-logo svg {
+    width: 60px;
+    height: 30px;
+  }
+  
+  .about-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-section {
+    padding: 50px 0;
+  }
+  
+  .about-title {
+    font-size: 1.8rem;
+  }
+  
+  .about-card, .feature {
+    padding: 25px;
+  }
+  
+  .about-features {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 350px;
+  }
+}

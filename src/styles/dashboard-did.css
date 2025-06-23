@@ -1,0 +1,79 @@
+/* Additional DID verification styles for Dashboard */
+.did-verification-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.did-verification-section.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.did-description {
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 90%;
+}
+
+.did-actions-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.did-actions .secondary-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.did-actions .secondary-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.did-actions .primary-button {
+  background: linear-gradient(135deg, #0052FF, #00C2FF);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 82, 255, 0.2);
+}
+
+.did-actions .primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 82, 255, 0.3);
+}
+
+/* Ensure the DID card in the dashboard has proper spacing */
+.dashboard-card.did-card .card-content {
+  padding: 0.5rem 0.5rem;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .did-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .did-verification-container {
+    gap: 1rem;
+  }
+}

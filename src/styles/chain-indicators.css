@@ -1,0 +1,29 @@
+.chain-icon {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+.detail-value .chain-icon {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.user-wallet {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.user-wallet .chain-icon {
+  font-size: 0.9rem;
+  margin-right: 4px;
+  opacity: 0.8;
+}

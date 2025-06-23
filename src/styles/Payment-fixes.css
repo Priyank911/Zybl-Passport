@@ -1,0 +1,181 @@
+/* Extra fixes for compact payment UI */
+@media screen and (max-height: 700px) {
+  .payment-container {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    justify-content: flex-start !important;
+    overflow-y: auto;
+  }
+  
+  .payment-success-landscape {
+    max-height: 100vh;
+    padding: 5px 0;
+  }
+  
+  .success-card-main {
+    max-height: none;
+    margin: 0 auto;
+  }
+  
+  .success-right {
+    max-height: none;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .payment-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
+  .payment-success-landscape {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .success-card-main {
+    border-radius: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Success title and message styles for consistent centering */
+.success-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 15px 0 10px;
+  text-align: center;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  width: 100%;
+}
+
+.success-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  text-align: center;
+  max-width: 500px;
+  font-weight: 200;
+}
+
+/* Success animation container centering */
+.success-animation-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
+
+/* Extra sparkle effect for confetti */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Fix for the confetti overflow issue */
+.success-confetti {
+  pointer-events: none !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  top: -20px !important;
+  left: -20px !important;
+  right: -20px !important;
+  bottom: -20px !important;
+  width: 200px !important;
+  height: 200px !important;
+  z-index: 0 !important;
+}
+
+/* Fix for pulse animation */
+.success-animation-container div[style*="animation: pulse-ring"] {
+  z-index: 0 !important;
+}
+
+/* Animation for the checkmark drawing */
+@keyframes checkmark-draw {
+  0% {
+    stroke-dashoffset: 30;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Animation for confetti particles */
+@keyframes confettiDrop {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(180px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Animation for pulse effect */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Mobile portrait optimization */
+@media screen and (max-width: 480px) {
+  .success-left.no-scroll {
+    padding: 20px 10px;
+    min-height: 240px;
+    justify-content: center;
+  }
+  
+  .success-animation-container {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 10px;
+  }
+  
+  .success-title {
+    font-size: 1.4rem;
+    margin: 10px 0 8px;
+  }
+  
+  .success-message {
+    font-size: 0.9rem;
+    max-width: 260px;
+    line-height: 1.4;
+  }
+}
+
+/* NFT Minting animation */
+@keyframes pulse-width {
+  0% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, #0052FF 0%, #002A85 100%);
+  }
+  50% {
+    opacity: 1;
+    background: linear-gradient(90deg, #0064FF 0%, #0052FF 100%);
+  }
+  100% {
+    opacity: 0.8;
+    background: linear-gradient(90deg, #0052FF 0%, #002A85 100%);
+  }
+}

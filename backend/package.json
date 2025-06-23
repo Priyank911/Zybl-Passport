@@ -1,0 +1,29 @@
+{
+  "name": "zybl-payment-backend",
+  "version": "1.0.0",
+  "description": "Backend for Zybl payment processing using X402 protocol",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "export": "node dev-export-tool.js",
+    "lookup": "node cid-lookup-tool.js",
+    "test-api": "node api-tester.js test",
+    "test-export": "node test-export.js",
+    "setup-pinata": "node setup-pinata.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "form-data": "^4.0.0",
+    "node-cron": "^3.0.3",
+    "x402-express": "^0.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

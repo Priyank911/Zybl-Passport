@@ -1,0 +1,145 @@
+/* Footer Styles */
+.footer {
+  width: 100%;
+  background-color: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 0; 
+  margin-top: auto;
+  position: relative;
+  z-index: 100;
+  display: block !important; /* Force display as block with !important */
+  opacity: 1 !important; /* Force visibility with !important */
+  transform: translateY(0) !important; /* Override any transform animations */
+}
+
+.footer-container {
+  width: 100%;
+  max-width: 1440px; /* Match content-container max-width in App.css */
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px; /* Match content-container padding */
+  flex-wrap: wrap; /* Added to improve responsiveness */
+  min-height: 60px; /* Ensure minimum height */
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px; /* Reduced gap for a more compact look */
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px; /* Reduced margin for a more compact look */
+}
+
+.footer-logo-img {
+  height: 18px; /* Slightly smaller logo */
+  width: auto;
+}
+
+.footer-logo span {
+  font-size: 0.95rem; /* Slightly smaller font */
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.footer-links-container {
+  display: flex;
+  align-items: center;
+  gap: 24px; /* Slightly reduced gap */
+}
+
+.footer-links-group {
+  display: flex;
+  gap: 16px; /* Slightly reduced gap */
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 0.8rem; /* Slightly smaller font */
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+}
+
+.footer-social {
+  display: flex;
+  gap: 12px; /* Slightly reduced gap */
+  margin-left: 8px; /* Reduced margin */
+}
+
+.footer-social-icon {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px; /* Defined height for consistency */
+  width: 24px; /* Defined width for consistency */
+}
+
+.footer-social-icon:hover {
+  color: #ffffff;
+  transform: translateY(-1px); /* More subtle movement */
+}
+
+.copyright {
+  color: rgba(255, 255, 255, 0.35); /* Slightly more subtle */
+  font-size: 0.7rem; /* Smaller font */
+  margin: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 12px; /* Reduced gap */
+  }
+  
+  .footer-left {
+    align-items: center;
+    margin-bottom: 6px; /* Reduced margin */
+  }
+  
+  .footer-links-container {
+    flex-direction: column;
+    gap: 12px; /* Reduced gap */
+  }
+  
+  .footer-links-group {
+    justify-content: center;
+  }
+  
+  .footer-social {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 10px 0; /* Further reduced padding */
+  }
+  
+  .footer-links-group {
+    gap: 12px; /* Reduced gap */
+  }
+  
+  .footer-link {
+    font-size: 0.75rem; /* Smaller font on mobile */
+  }
+  
+  .copyright {
+    text-align: center;
+    font-size: 0.7rem; /* Smaller copyright font on mobile */
+  }
+}

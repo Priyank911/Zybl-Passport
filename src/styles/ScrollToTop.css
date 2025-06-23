@@ -1,0 +1,39 @@
+.scroll-to-top {
+  position: fixed;
+  bottom: 24px; /* Adjusted to work with more compact footer */
+  right: 24px;
+  width: 38px; /* Slightly smaller button */
+  height: 38px; /* Slightly smaller button */
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-to-top:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 16px; /* Adjusted for mobile */
+    right: 16px;
+    width: 36px; /* Smaller on mobile */
+    height: 36px; /* Smaller on mobile */
+  }
+}

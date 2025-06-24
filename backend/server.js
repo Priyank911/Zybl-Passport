@@ -41,36 +41,32 @@ async function loadProcessedUsers() {
 }
 
 // Continuous monitoring and processing service
-async function monitorAndProcessUsers() {  if (isProcessing) {
-    return;
-  }
+async function monitorAndProcessUsers() {
+  if (isProcessing) return;
+  try {
+    isProcessing = true;
+    processingStats.lastRunTime = new Date().toISOString();
 
-  try {    isProcessing = true;
-    processingStats.lastRunTime = new Date().toISOString();// Get all unique user IDs from USERS collection ONLY
-    const allUserIds = new Set();    try {
-      const usersSnapshot = await db.collection('users').get();
-      usersSnapshot.forEach(doc => {
-        // Use ONLY the document ID as the unique user ID
-        allUserIds.add(doc.id);      });
-    } catch (error) {
-      console.error('Could not access users collection:', error.message);
-      return;    }
+    // 1. Get all user IDs from users collection
+    const usersSnapshot = await db.collection('users').get();
+    const allUserIds = new Set();
+    usersSnapshot.forEach(doc => allUserIds.add(doc.id));
 
-    // Get users that already have CIDs in IPFS (successfully processed)
+    // 2. Get all user IDs that already have CIDs in ipfsData
     const ipfsSnapshot = await db.collection('ipfsData').where('status', '==', 'completed').get();
     const usersWithCIDs = new Set();
-    
-    ipfsSnapshot.forEach(doc => {
-      usersWithCIDs.add(doc.id);    });
-    
-    // Get ONLY new users that don't have CIDs yet    const newUsersOnly = Array.from(allUserIds).filter(id => !usersWithCIDs.has(id));
+    ipfsSnapshot.forEach(doc => usersWithCIDs.add(doc.id));
 
+    // 3. Only process new users
+    const newUsersOnly = Array.from(allUserIds).filter(id => !usersWithCIDs.has(id));
     if (newUsersOnly.length === 0) {
+      console.log('✅ No new users to process');
       return;
     }
 
     // Process each NEW user ID only
-    for (const userId of newUsersOnly) {      try {
+    for (const userId of newUsersOnly) {
+      try {
         // Aggregate user data from ALL collections based on this user ID
         const userData = await dataAggregatorService.fetchAllUserData(userId);
 
@@ -93,14 +89,13 @@ async function monitorAndProcessUsers() {  if (isProcessing) {
             exportedBy: 'auto-monitor-service-users-collection',
             sourceCollection: 'users'
           }
-        };// Upload to IPFS
+        };
+        // Upload to IPFS
         const filename = `zybl-user-${userId}-${Date.now()}`;
         const ipfsResult = await pinataService.uploadJSON(dataPackage, filename);
-        
         if (!ipfsResult.success) {
           throw new Error(`IPFS upload failed: ${ipfsResult.error}`);
         }
-        
         // Store CID and metadata in Firestore
         await db.collection('ipfsData').doc(userId).set({
           cid: ipfsResult.cid,
@@ -108,22 +103,18 @@ async function monitorAndProcessUsers() {  if (isProcessing) {
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           dataSize: JSON.stringify(dataPackage).length,
           collections: Object.keys(userData),
-          processedAt: new Date().toISOString(),          status: 'completed',
+          processedAt: new Date().toISOString(),
+          status: 'completed',
           ipfsUrl: ipfsResult.ipfsUrl,
           processingMethod: 'auto-monitor-users-collection'
         });
-
-        // Mark as processed
-        processedUsers.add(userId);
-        processingStats.successful++;        processingStats.totalProcessed++;
-        
+        processingStats.successful++;
+        processingStats.totalProcessed++;
         // Small delay between processing users to avoid overwhelming the system
         await new Promise(resolve => setTimeout(resolve, 2000));
-        
       } catch (error) {
         console.error(`Failed to process user ID ${userId}:`, error.message);
         processingStats.failed++;
-        
         // Store error in Firestore for tracking
         try {
           await db.collection('ipfsData').doc(userId).set({
@@ -135,9 +126,9 @@ async function monitorAndProcessUsers() {  if (isProcessing) {
           });
         } catch (storeError) {
           console.error('Failed to store error in Firestore:', storeError.message);
-        }      }
+        }
+      }
     }
-    
   } catch (error) {
     console.error('Monitoring cycle failed:', error.message);
   } finally {

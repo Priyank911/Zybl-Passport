@@ -9,7 +9,7 @@ const BACKEND_URL = "http://localhost:5000";
 export const PROTOCOL_ADDRESS = "0xDCB45e4f6762C3D7C61a00e96Fb94ADb7Cf27721";
 
 // Flag to enable demo mode (simulates blockchain interactions without actual transactions)
-const DEMO_MODE = true;
+const DEMO_MODE = false; // Changed to false for real testnet transactions
 
 // Base Sepolia network configuration
 const NETWORK_CONFIG = {

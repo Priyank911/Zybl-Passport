@@ -6,6 +6,7 @@ import { calculateZyblScore, recalculateZyblScore, getScoreImprovementTips } fro
 import DIDCredentialCard from '../components/DIDCredentialCard';
 import StatsCard, { StatsIcons } from '../components/StatsCard';
 import WalletConnections from '../components/WalletConnections';
+import PaymentHistory from '../components/PaymentHistory';
 import Logo from '../assets/Logo.png';
 import '../styles/Dashboard.css';
 import '../styles/Dashboard-modern.css';
@@ -74,6 +75,23 @@ const Dashboard = () => {
           setError("User ID not found. Please sign in again.");
           navigate('/signin');
           return;
+        }
+        
+        // X402 Payment Verification - Check if payment is required
+        if (parsedData.address && (!parsedData.paymentStatus || parsedData.paymentStatus.status !== 'paid')) {
+          console.log("🔒 Payment verification required for dashboard access");
+          console.log("💳 Payment not found in user data - redirecting to payment page");
+          navigate(`/payment?id=${currentUserId}`);
+          return;
+        }
+        
+        console.log("✅ Payment status verified from user data");
+        if (parsedData.paymentStatus) {
+          console.log("💰 Payment details:", {
+            status: parsedData.paymentStatus.status,
+            transactionId: parsedData.paymentStatus.transactionId,
+            amount: parsedData.paymentStatus.amount
+          });
         }
         
         // If we have a user ID but URL doesn't have it, update the URL
@@ -216,7 +234,7 @@ const Dashboard = () => {
     }
   }, [dashboardData]);
 
-  const handleToggleChange = (section, setting) => {
+  const handleSwitchChange = (section, setting) => {
     if (!settings) return;
     
     setSettings(prevSettings => {
@@ -531,6 +549,17 @@ const Dashboard = () => {
               <path d="M15.4098 6.50977L8.58984 10.4898" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Connections
+          </a>
+          <a 
+            href="#" 
+            className={`nav-item ${activeTab === 'payments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('payments')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+              <line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" strokeWidth="2"/>
+            </svg>
+            Payment History
           </a>
           <a 
             href="#" 
@@ -1243,46 +1272,46 @@ const Dashboard = () => {
                       <div className="settings-group">
                         <h3>Notification Preferences</h3>
                         
-                        <div className="toggle-setting">
-                          <div className="toggle-info">
-                            <div className="toggle-label">Email Notifications</div>
-                            <div className="toggle-description">Receive email notifications for account activity and updates</div>
+                        <div className="switch-setting">
+                          <div className="switch-info">
+                            <div className="switch-label">Email Notifications</div>
+                            <div className="switch-description">Receive email notifications for account activity and updates</div>
                           </div>
                           <label className="switch">
                             <input 
                               type="checkbox" 
                               checked={settings?.notifications?.emailNotifications} 
-                              onChange={() => handleToggleChange('notifications', 'emailNotifications')}
+                              onChange={() => handleSwitchChange('notifications', 'emailNotifications')}
                             />
                             <span className="slider round"></span>
                           </label>
                         </div>
                         
-                        <div className="toggle-setting">
-                          <div className="toggle-info">
-                            <div className="toggle-label">Security Alerts</div>
-                            <div className="toggle-description">Get notified about important security events and authorization attempts</div>
+                        <div className="switch-setting">
+                          <div className="switch-info">
+                            <div className="switch-label">Security Alerts</div>
+                            <div className="switch-description">Get notified about important security events and authorization attempts</div>
                           </div>
                           <label className="switch">
                             <input 
                               type="checkbox" 
                               checked={settings?.notifications?.securityAlerts}
-                              onChange={() => handleToggleChange('notifications', 'securityAlerts')}
+                              onChange={() => handleSwitchChange('notifications', 'securityAlerts')}
                             />
                             <span className="slider round"></span>
                           </label>
                         </div>
                         
-                        <div className="toggle-setting">
-                          <div className="toggle-info">
-                            <div className="toggle-label">Share anonymized data for platform improvement</div>
-                            <div className="toggle-description">Help us improve by sharing anonymous usage statistics and crash reports</div>
+                        <div className="switch-setting">
+                          <div className="switch-info">
+                            <div className="switch-label">Share anonymized data for platform improvement</div>
+                            <div className="switch-description">Help us improve by sharing anonymous usage statistics and crash reports</div>
                           </div>
                           <label className="switch">
                             <input 
                               type="checkbox" 
                               checked={settings?.notifications?.shareAnonymizedData}
-                              onChange={() => handleToggleChange('notifications', 'shareAnonymizedData')}
+                              onChange={() => handleSwitchChange('notifications', 'shareAnonymizedData')}
                             />
                             <span className="slider round"></span>
                           </label>
@@ -1324,7 +1353,7 @@ const Dashboard = () => {
                         <button 
                           className="wallet-action-button"
                           onClick={() => {
-                            handleToggleChange('walletPreferences', 'autoConnectWallet');
+                            handleSwitchChange('walletPreferences', 'autoConnectWallet');
                             // Apply this change immediately
                             if (settings?.walletPreferences) {
                               saveSettings();

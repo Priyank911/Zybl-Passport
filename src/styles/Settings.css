@@ -101,27 +101,27 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Toggle switch styles */
-.toggle-setting {
+/* Switch setting styles */
+.switch-setting {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
 }
 
-.toggle-info {
+.switch-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.toggle-label {
+.switch-label {
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--text-primary);
 }
 
-.toggle-description {
+.switch-description {
   font-size: 0.8rem;
   color: var(--text-tertiary);
   max-width: 400px;

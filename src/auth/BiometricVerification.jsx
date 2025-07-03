@@ -314,9 +314,8 @@ const BiometricVerification = () => {
         } else {
           // Redirect to payment page if payment not completed
           console.log("Payment not completed, redirecting to payment");
-          const redirectUrl = userId ? `/payment?id=${userId}` : '/payment';
           setTimeout(() => {
-            navigate(redirectUrl);
+            navigate('/payment');
           }, 3500);
         }
       }    }, 2000);

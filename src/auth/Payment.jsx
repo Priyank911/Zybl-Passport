@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { processPayment } from '../services/paymentService'; // Legacy service
 import { initiateX402Payment, connectWallet, formatAddress, getTransactionLink, getBaseSepoliaTestnetETH, PROTOCOL_ADDRESS } from '../services/x402PaymentService'; // X402 service
-import { trackUserJourney } from '../utils/firebaseConfig';
+import { trackUserJourney, storePayment } from '../utils/firebaseConfig';
 import '../styles/Payment.css';
 import '../styles/Payment-fixes.css'; // Extra fixes for compact container
 import Logo from '../assets/Logo.png';
@@ -122,6 +122,120 @@ const SecureBadge = () => (  <div className="secure-payment-badge">
   </div>
 );
 
+// Demo Mode Toggle Component
+const DemoModeToggle = ({ demoMode, setDemoMode }) => (
+  <div className="demo-mode-toggle">
+    <div className="toggle-container">
+      <div className="toggle-label">Payment Mode</div>
+      <div className="toggle-options">
+        <button 
+          className={`toggle-option ${demoMode === false ? 'active' : ''}`}
+          onClick={() => setDemoMode(false)}
+          aria-label="Select Original Payment Mode"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 5.26L16.91 4.74L15.82 8L19.82 8.66L17.91 11.34L21.26 13.09L18.74 16.91L20 19.82L16.66 18.74L15.34 21.91L12 20L8.66 21.91L7.34 18.74L4 19.82L5.26 16.91L1.91 15.34L4.74 13.09L2.18 11.34L6.18 8.66L4.09 8L7.91 4.74L6.91 5.26L12 2Z" 
+                  stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.1"/>
+          </svg>
+          Original
+        </button>
+        <button 
+          className={`toggle-option ${demoMode === true ? 'active' : ''}`}
+          onClick={() => setDemoMode(true)}
+          aria-label="Select Demo Payment Mode"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.5 12.5L11 14L14.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6" stroke="currentColor" strokeWidth="2" fill="none"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
+          </svg>
+          Demo
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Demo Wallet Popup (simulates real wallet interface)
+const DemoWalletPopup = ({ show, onConfirm, onCancel, amount }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  const handleConfirm = () => {
+    setIsProcessing(true);
+    setTimeout(() => {
+      onConfirm();
+      setIsProcessing(false);
+    }, 2000);
+  };
+  
+  if (!show) return null;
+  
+  return (
+    <div className="demo-wallet-overlay">
+      <div className="demo-wallet-popup">
+        <div className="demo-wallet-header">
+          <div className="demo-wallet-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="#0052FF"/>
+              <path d="M12 6.5A5.5 5.5 0 1 0 17.5 12 5.51 5.51 0 0 0 12 6.5Zm0 8.99a3.49 3.49 0 1 1 0-6.98 3.49 3.49 0 0 1 0 6.98Z" fill="#FFF"/>
+            </svg>
+            <span>Coinbase Wallet</span>
+          </div>
+          <button className="demo-wallet-close" onClick={onCancel}>×</button>
+        </div>
+        
+        <div className="demo-wallet-content">
+          <h3>Approve USDC Spending</h3>
+          <div className="demo-badge-header">
+            <span className="demo-label">DEMO MODE</span>
+          </div>
+          
+          <div className="demo-wallet-details">
+            <div className="demo-wallet-row">
+              <span className="label">Amount</span>
+              <span className="value">{amount} USDC</span>
+            </div>
+            <div className="demo-wallet-row">
+              <span className="label">Recipient</span>
+              <span className="value address">{PROTOCOL_ADDRESS}</span>
+            </div>
+            <div className="demo-wallet-row">
+              <span className="label">Network</span>
+              <span className="value">Base Sepolia (Demo)</span>
+            </div>
+            <div className="demo-wallet-row">
+              <span className="label">Gas Fee</span>
+              <span className="value">~0.0002 ETH (Simulated)</span>
+            </div>
+          </div>
+          
+          <div className="demo-wallet-actions">
+            <button className="demo-wallet-reject" onClick={onCancel} disabled={isProcessing}>
+              Cancel
+            </button>
+            <button 
+              className="demo-wallet-approve" 
+              onClick={handleConfirm}
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Processing...' : 'Confirm'}
+            </button>
+          </div>
+          
+          <div className="demo-wallet-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>This is a simulated transaction for demo purposes - no real payment will be processed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -139,6 +253,10 @@ const Payment = () => {
   const [nftMetadata, setNftMetadata] = useState(null);
   const [userIdFromUrl, setUserIdFromUrl] = useState(null);
   const receiptRef = useRef(null); // Reference for the receipt to print as PDF
+  
+  // Demo mode state
+  const [demoMode, setDemoMode] = useState(null); // null = not selected, true = demo, false = original
+  const [showDemoWallet, setShowDemoWallet] = useState(false);
   
   // Mock wallet popup state
   const [showMockWallet, setShowMockWallet] = useState(false);
@@ -162,7 +280,7 @@ const Payment = () => {
       console.error("Error parsing URL for user ID:", error);
     }
   }, [location.search]);
-  // Check authentication on mount
+  // Check authentication on mount and auto-redirect if needed
   useEffect(() => {
     const checkAuth = async () => {
       setIsLoading(true);
@@ -170,21 +288,45 @@ const Payment = () => {
         const storedData = localStorage.getItem('zybl_user_data');
         if (!storedData) {
           // Not authenticated, redirect to signin
+          console.log("No user data found, redirecting to signin");
           navigate('/signin');
           return;
         }
         
         const parsedData = JSON.parse(storedData);
+        console.log("📱 Found user data in localStorage:", parsedData);
+        
+        // Set user data first before any redirects
+        setUserData(parsedData);
+        
+        // Auto-redirect logic: If no ID in URL but we have user data, redirect with ID
+        if (!userIdFromUrl && parsedData.userID) {
+          console.log("✅ AUTO-REDIRECT: /payment → /payment?id=" + parsedData.userID);
+          console.log("🔄 Redirecting to include user ID in URL...");
+          navigate(`/payment?id=${parsedData.userID}`, { replace: true });
+          return;
+        }
+        
+        // Get the user ID (from URL or stored data)
+        const userId = userIdFromUrl || parsedData.userID;
+        if (!userId) {
+          console.log("❌ No user ID available, redirecting to signin");
+          navigate('/signin');
+          return;
+        }
+        
+        console.log("🔍 Processing payment for user ID:", userId);
+        
         // Check if user has completed verification
-        if (!parsedData.verificationStatus) {
-          // Verification not completed, redirect to verification
-          navigate('/verification');
+        if (!parsedData.verificationStatus || parsedData.verificationStatus.status !== 'Verified') {
+          console.log("⚠️ Verification not completed, redirecting to verification");
+          navigate(`/verification?id=${userId}`);
           return;
         }
         
         // Check if user has already paid - if so, show success screen immediately
         if (parsedData.paymentStatus && parsedData.paymentStatus.status === 'paid') {
-          console.log("User has already completed payment, showing success screen");
+          console.log("✅ User has already completed payment, showing success screen");
           setPaymentStatus('success');
           setTransactionId(parsedData.paymentStatus.transactionId);
           setExplorerLink(parsedData.paymentStatus.explorerLink);
@@ -194,9 +336,8 @@ const Payment = () => {
           }
         }
         
-        setUserData(parsedData);
       } catch (e) {
-        console.error("Error parsing stored user data:", e);
+        console.error("❌ Error parsing stored user data:", e);
         localStorage.removeItem('zybl_user_data');
         navigate('/signin');
       } finally {
@@ -205,7 +346,7 @@ const Payment = () => {
     };
     
     checkAuth();
-  }, [navigate]);// Check and connect wallet on mount (for X402 payment)
+  }, [navigate, userIdFromUrl]); // Add userIdFromUrl as dependency// Check and connect wallet on mount (for X402 payment)
   useEffect(() => {
     const connectCoinbaseWallet = async () => {
       if (!userData) return;
@@ -271,9 +412,70 @@ const Payment = () => {
     
     return () => clearInterval(checkMockWalletRequests);
   }, []);
-    // Process payment
+  
+  // Handle demo payment confirmation
+  const handleDemoPaymentConfirm = async () => {
+    setShowDemoWallet(false);
+    setPaymentStatus('success');
+    const demoTxId = '0xdemo1234567890abcdef1234567890abcdef123456789012345678901234567890';
+    const demoExplorerLink = 'https://sepolia.basescan.org/tx/0xdemo1234567890abcdef1234567890abcdef123456789012345678901234567890';
+    
+    setTransactionId(demoTxId);
+    setExplorerLink(demoExplorerLink);
+    
+    if (userData) {
+      const demoPaymentStatus = {
+        status: 'paid',
+        transactionId: demoTxId,
+        explorerLink: demoExplorerLink,
+        amount: paymentAmount,
+        timestamp: new Date().toISOString(),
+        isDemo: true
+      };
+      
+      const updatedUserData = { ...userData, paymentStatus: demoPaymentStatus };
+      localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
+      setUserData(updatedUserData);
+      
+      // Store payment data in Firebase
+      try {
+        await storePayment(userIdFromUrl, {
+          amount: paymentAmount,
+          currency: 'USDC',
+          status: 'paid',
+          transactionId: demoTxId,
+          explorerLink: demoExplorerLink,
+          network: 'Base Sepolia',
+          timestamp: new Date(),
+          isDemo: true,
+          paymentId: `demo-${userIdFromUrl}-${Date.now()}`
+        });
+        console.log('✅ Demo payment data stored in Firebase successfully');
+      } catch (error) {
+        console.error('❌ Error storing demo payment data in Firebase:', error);
+      }
+    }
+    
+    setTimeout(() => navigate(`/dashboard?id=${userIdFromUrl}`), 3000);
+  };
+  
+  const handleDemoPaymentCancel = () => setShowDemoWallet(false);
+  
+  // Process payment
   const handlePayment = async () => {
     try {
+      // Handle demo mode
+      if (demoMode === true) {
+        setShowDemoWallet(true);
+        return;
+      }
+      
+      // Check if payment mode is not selected
+      if (demoMode === null) {
+        setPaymentError('Please select payment mode (Original or Demo) from the toggle in the top right corner.');
+        return;
+      }
+      
       // Check if payment has already been completed
       if (userData?.paymentStatus?.status === 'paid') {
         console.log("Payment already completed, showing success screen");
@@ -299,161 +501,183 @@ const Payment = () => {
       setPaymentError(null);
       
       try {
-        // Use X402 payment service instead of legacy payment service
-        console.log("Initiating X402 payment flow...");
+        console.log("🚀 Starting X402 payment verification flow...");
         
-        // Step 1: Wallet connection
+        // Step 1: Check if payment already exists
         setProcessingStep(0);
+        const checkResult = await verifyPaymentOnBlockchain(userData.address);
         
-        // Setup mock wallet interaction
-        window.mockWalletResult = null;
-        
-        // We'll use event listeners to synchronize with our enhanced demo flow
-        const handleDemoMessage = (message) => {
-          console.log("Demo message:", message);
-          
-          if (message.includes("Wallet connected successfully")) {
-            setProcessingStep(1); // Move to step 2
-          } 
-          else if (message.includes("Opening wallet approval popup")) {
-            setProcessingStep(2); // Move to step 3
-          }
-          else if (message.includes("User approved the transaction")) {
-            // User approved in the mock wallet
-            setProcessingStep(3); // Move to step 4
-          }
-          else if (message.includes("Transaction confirmed")) {
-            setProcessingStep(4); // Move to step 5
-          }
-        };
-        
-        // Override console.log to capture demo mode messages
-        const originalConsoleLog = console.log;
-        console.log = function() {
-          originalConsoleLog.apply(console, arguments);
-          if (arguments[0] && typeof arguments[0] === 'string' && 
-              arguments[0].includes('DEMO MODE')) {
-            handleDemoMessage(arguments[0]);
-          }
-        };
-        
-        // Start the payment flow
-        const result = await initiateX402Payment();
-        console.log("X402 payment result:", result);
-        
-        // Restore original console.log
-        console.log = originalConsoleLog;
-        
-        // Process successful payment
-        if (result && result.success) {
-          setTransactionId(result.receipt?.transactionHash || "demo-tx-" + Date.now());
-          setExplorerLink(getTransactionLink(result.receipt?.transactionHash) || "#"); 
-          
-          // Save the NFT metadata if available
-          if (result.nft) {
-            setNftMetadata(result.nft);
-          }
-          
-          // After successful payment, transition directly to success state
-          // The NFT minting is now handled with real wallet signature in the x402PaymentService
+        if (checkResult.success) {
+          console.log("✅ Payment already verified on blockchain");
+          setTransactionId(checkResult.transaction.hash);
+          setExplorerLink(checkResult.transaction.explorerUrl);
           setPaymentStatus('success');
           
-          // Set revenue split data if available
-          if (result.receipt?.splits) {
-            setRevenueSplit(result.receipt.splits);
-          }
-          
-          // Import DID utilities and generate a DID for the user
-          const { generateDID } = await import('../utils/didUtils');
-          
-          // Generate a DID using the user's wallet address and payment info
-          const didDocument = generateDID(userData.address, {
-            timestamp: new Date().toISOString(),
-            verificationScore: userData.verificationStatus?.score || 95,
-            network: 'Base Sepolia',
-            entropy: result.receipt?.transactionHash || Date.now().toString()
-          });
-          
-          // Create payment status data
-          const paymentStatus = {
-            status: 'paid',
-            amount: paymentAmount,
-            currency: 'USDC',
-            transactionId: result.receipt?.transactionHash,
-            explorerLink: getTransactionLink(result.receipt?.transactionHash),
-            network: 'Base Sepolia',
-            timestamp: new Date().toISOString(),
-            paymentId: result.receipt?.paymentId
-          };
-          
-          // Update user data with payment info and DID for persistence across sessions
+          // Update user data
           const updatedUserData = {
             ...userData,
-            paymentStatus,
-            didDocument  // Store the DID document in the user data
-          };
-            // Track payment completion and DID creation in Firebase
-          if (userData && userData.userID) {
-            try {
-              await trackUserJourney(userData.userID, 'payment', {
-                ...paymentStatus,
-                nftMinted: !!result.nft,
-                didCreated: true,
-                didId: didDocument.id
-              });
-              
-              // Also store the complete payment data in Firebase for persistence
-              const { storePayment } = await import('../utils/firebaseConfig');
-              const paymentStored = await storePayment(userData.userID, paymentStatus);
-              if (paymentStored) {
-                console.log("✅ Payment data successfully stored in Firebase");
-              } else {
-                console.warn("⚠️ Failed to store payment data in Firebase");
-              }
-            } catch (error) {
-              console.error("Error tracking payment completion:", error);
+            paymentStatus: {
+              status: 'paid',
+              transactionId: checkResult.transaction.hash,
+              explorerLink: checkResult.transaction.explorerUrl,
+              amount: checkResult.transaction.amount,
+              timestamp: new Date().toISOString()
             }
-          }
+          };
           
-          // Store updated user data
           localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
-          
-          // Set local state to trigger re-render
           setUserData(updatedUserData);
           
-          // No automatic redirect - user must click the dashboard button
-        } else {
-          // Handle failed payment with specific error message
-          setPaymentError(result?.message || 'Payment processing failed. Please try again.');
-          setPaymentStatus('error');
+          // Store payment data in Firebase
+          try {
+            await storePayment(userIdFromUrl, {
+              amount: checkResult.transaction.amount || paymentAmount,
+              currency: 'USDC',
+              status: 'paid',
+              transactionId: checkResult.transaction.hash,
+              explorerLink: checkResult.transaction.explorerUrl,
+              network: 'Base Sepolia',
+              timestamp: new Date(),
+              isDemo: false,
+              paymentId: `real-${userIdFromUrl}-${checkResult.transaction.hash}`
+            });
+            console.log('✅ Existing payment data stored in Firebase successfully');
+          } catch (error) {
+            console.error('❌ Error storing existing payment data in Firebase:', error);
+          }
+          
+          // Auto-redirect to dashboard after success
+          setTimeout(() => {
+            navigate(`/dashboard?id=${userIdFromUrl}`);
+          }, 3000);
+          
+          return;
         }
+        
+        // Step 2: Initiate USDC payment
+        setProcessingStep(1);
+        console.log("💰 Initiating USDC payment on Base Sepolia...");
+        
+        const paymentResult = await initiateX402Payment();
+        
+        if (!paymentResult || !paymentResult.success) {
+          throw new Error('Payment transaction failed or was cancelled');
+        }
+        
+        // Step 3: Wait for transaction confirmation
+        setProcessingStep(2);
+        console.log("⏳ Waiting for transaction confirmation...");
+        
+        // Wait a bit for transaction to be mined
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        // Step 4: Verify payment on blockchain
+        setProcessingStep(3);
+        console.log("🔍 Verifying payment on Base Sepolia...");
+        
+        const verificationResult = await verifyPaymentOnBlockchain(userData.address);
+        
+        if (!verificationResult.success) {
+          throw new Error('Payment verification failed. Please try again or contact support.');
+        }
+        
+        // Step 5: Payment confirmed
+        setProcessingStep(4);
+        console.log("✅ Payment verified successfully!");
+        
+        setTransactionId(verificationResult.transaction.hash);
+        setExplorerLink(verificationResult.transaction.explorerUrl);
+        setPaymentStatus('success');
+        
+        // Update user data
+        const updatedUserData = {
+          ...userData,
+          paymentStatus: {
+            status: 'paid',
+            transactionId: verificationResult.transaction.hash,
+            explorerLink: verificationResult.transaction.explorerUrl,
+            amount: verificationResult.transaction.amount,
+            timestamp: new Date().toISOString()
+          }
+        };
+        
+        localStorage.setItem('zybl_user_data', JSON.stringify(updatedUserData));
+        setUserData(updatedUserData);
+        
+        // Store payment data in Firebase
+        try {
+          await storePayment(userIdFromUrl, {
+            amount: verificationResult.transaction.amount || paymentAmount,
+            currency: 'USDC',
+            status: 'paid',
+            transactionId: verificationResult.transaction.hash,
+            explorerLink: verificationResult.transaction.explorerUrl,
+            network: 'Base Sepolia',
+            timestamp: new Date(),
+            isDemo: false,
+            paymentId: `real-${userIdFromUrl}-${verificationResult.transaction.hash}`
+          });
+          console.log('✅ New payment data stored in Firebase successfully');
+        } catch (error) {
+          console.error('❌ Error storing new payment data in Firebase:', error);
+        }
+        
+        // Auto-redirect to dashboard after success
+        setTimeout(() => {
+          navigate(`/dashboard?id=${userIdFromUrl}`);
+        }, 3000);
+        
       } catch (error) {
-        // Clear the interval if there's an error
-        clearInterval(stepInterval);
-        throw error;
-      }    } catch (error) {      
-      console.error('Error processing payment:', error);
-      
-      // Set user-friendly error message
-      let errorMessage = error.message || 
-        'An unexpected error occurred during payment processing. Please try again.';
-      
-      // Check for common testnet ETH issues
-      if (errorMessage.includes('insufficient funds') || 
-          errorMessage.includes('Insufficient ETH') ||
-          errorMessage.includes('gas required exceeds allowance')) {
-        errorMessage = 'You need Base Sepolia testnet ETH to pay for transaction fees. Please use the "Get testnet ETH" link below to get some from a faucet and try again.';
-      } else if (errorMessage.includes('User rejected') || 
-                errorMessage.includes('User denied')) {
-        errorMessage = 'You rejected the transaction in your wallet. Please try again and approve the transaction.';
+        console.error("Payment processing error:", error);
+        setPaymentError(error.message);
+        setPaymentStatus('error');
       }
-      
-      setPaymentError(errorMessage);
-      
-      // Update UI to show error state
+    } catch (error) {
+      console.error("handlePayment error:", error);
+      setPaymentError(error.message);
       setPaymentStatus('error');
     }
   };
+  
+  // Function to verify payment from local storage and Firebase
+  const verifyPaymentOnBlockchain = async (userAddress) => {
+    try {
+      console.log("🔍 Verifying payment for address:", userAddress);
+      
+      // Check localStorage for payment status first
+      const storedData = localStorage.getItem('zybl_user_data');
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        if (parsedData.paymentStatus && parsedData.paymentStatus.status === 'paid') {
+          console.log("✅ Payment found in localStorage");
+          return {
+            success: true,
+            transaction: {
+              hash: parsedData.paymentStatus.transactionId,
+              explorerUrl: parsedData.paymentStatus.explorerLink,
+              amount: parsedData.paymentStatus.amount || '2.00'
+            }
+          };
+        }
+      }
+      
+      // If no payment found locally, assume payment is required
+      console.log("💳 No payment found - payment required");
+      return { 
+        success: false, 
+        paymentRequired: true, 
+        info: { 
+          message: "Payment required to access Zybl Passport", 
+          amount: "2.00",
+          currency: "USDC" 
+        } 
+      };
+      
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      return { success: false, error: error.message };
+    }
+  }; 
   
   if (isLoading) {
     return (
@@ -464,7 +688,12 @@ const Payment = () => {
             <div className="loading-pulse"></div>
           </div>
           <h3>Loading Payment Interface</h3>
-          <p>Setting up your secure payment environment...</p>
+          <p>
+            {!userIdFromUrl ? 
+              "Auto-detecting user and setting up payment..." : 
+              "Setting up your secure payment environment..."
+            }
+          </p>
         </div>
       </div>
     );
@@ -477,11 +706,24 @@ const Payment = () => {
           <PaymentErrorIcon />
           <h3>Authentication Error</h3>
           <p>Unable to load user data. Please try signing in again.</p>
+          <p style={{fontSize: '12px', color: '#666', marginTop: '10px'}}>
+            Debug: {localStorage.getItem('zybl_user_data') ? 'Data exists in localStorage' : 'No data in localStorage'}
+          </p>
           <button 
             className="primary-button" 
             onClick={() => navigate('/signin')}
           >
             Return to Sign In
+          </button>
+          <button 
+            className="secondary-button" 
+            onClick={() => {
+              console.log("🔧 Debug: localStorage content:", localStorage.getItem('zybl_user_data'));
+              window.location.reload();
+            }}
+            style={{marginTop: '10px'}}
+          >
+            Debug & Reload
           </button>
         </div>
       </div>
@@ -905,7 +1147,21 @@ const Payment = () => {
       paddingTop: '5px',
       paddingBottom: '15px'
     }}>
-          {/* Background elements */}
+      {/* Demo Mode Toggle */}
+      <DemoModeToggle 
+        demoMode={demoMode}
+        setDemoMode={setDemoMode}
+      />
+      
+      {/* Demo Wallet Popup */}
+      <DemoWalletPopup 
+        show={showDemoWallet}
+        onConfirm={handleDemoPaymentConfirm}
+        onCancel={handleDemoPaymentCancel}
+        amount={paymentAmount}
+      />
+      
+      {/* Background elements */}
           <div className="payment-bg-elements">
             <div className="bg-circle circle1"></div>
             <div className="bg-circle circle2"></div>
@@ -1039,6 +1295,19 @@ const Payment = () => {
                       </svg>
                       <span>This transaction requires Base Sepolia testnet ETH for gas fees. <a href="#" onClick={(e) => { e.preventDefault(); getBaseSepoliaTestnetETH(); }}>Get testnet ETH</a></span>
                     </div>
+                    
+                    {/* Demo Mode Badge */}
+                    {demoMode === true && (
+                      <div className="demo-mode-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M14.828 14.828a4 4 0 0 1-5.656 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M9 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M15 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/>
+                        </svg>
+                        <span>Demo Mode Active - No Real Payment Required</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -1067,16 +1336,18 @@ const Payment = () => {
                       <button 
                     className="payment-button"
                     onClick={handlePayment}
-                    disabled={userData?.paymentStatus?.status === 'paid'}
+                    disabled={userData?.paymentStatus?.status === 'paid' || demoMode === null}
                     aria-label="Pay Now"
-                    style={userData?.paymentStatus?.status === 'paid' ? {
+                    style={userData?.paymentStatus?.status === 'paid' || demoMode === null ? {
                       opacity: 0.5,
                       cursor: 'not-allowed',
                       background: '#666666'
                     } : {}}
                   >
                     <span className="button-text">
-                      {userData?.paymentStatus?.status === 'paid' ? 'Payment Completed' : 'Pay Now with X402'}
+                      {userData?.paymentStatus?.status === 'paid' ? 'Payment Completed' : 
+                       demoMode === true ? 'Demo Pay' : 
+                       demoMode === false ? 'Pay Now with X402' : 'Select Payment Mode First'}
                     </span>
                     {userData?.paymentStatus?.status === 'paid' ? (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
